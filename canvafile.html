@@ -1,0 +1,133 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Package, Users, ShoppingCart, Boxes } from "lucide-react";
+
+export default function HomePage() {
+  const [stats, setStats] = useState({
+    furniture: 0,
+    customers: 0,
+    orders: 0,
+    materials: 0,
+  });
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const [furnitureRes, customersRes, ordersRes, materialsRes] =
+          await Promise.all([
+            fetch("/api/furniture"),
+            fetch("/api/customers"),
+            fetch("/api/orders"),
+            fetch("/api/materials"),
+          ]);
+
+        const furniture = await furnitureRes.json();
+        const customers = await customersRes.json();
+        const orders = await ordersRes.json();
+        const materials = await materialsRes.json();
+
+        setStats({
+          furniture: furniture.items?.length || 0,
+          customers: customers.customers?.length || 0,
+          orders: orders.orders?.length || 0,
+          materials: materials.materials?.length || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    }
+
+    fetchStats();
+  }, []);
+
+  const menuItems = [
+    {
+      title: "Katalog Furniture",
+      description: "Kelola produk furniture",
+      icon: Package,
+      href: "/furniture",
+      count: stats.furniture,
+      color: "bg-[#8B4513]",
+    },
+    {
+      title: "Pesanan",
+      description: "Kelola pesanan pelanggan",
+      icon: ShoppingCart,
+      href: "/orders",
+      count: stats.orders,
+      color: "bg-[#D2691E]",
+    },
+    {
+      title: "Pelanggan",
+      description: "Data pelanggan",
+      icon: Users,
+      href: "/customers",
+      count: stats.customers,
+      color: "bg-[#CD853F]",
+    },
+    {
+      title: "Material",
+      description: "Inventori bahan baku",
+      icon: Boxes,
+      href: "/materials",
+      count: stats.materials,
+      color: "bg-[#A0522D]",
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#F5E6D3] to-[#E8D4B8]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-[#3E2723] mb-4">
+            Workshop Furniture
+          </h1>
+          <p className="text-lg text-[#5D4037]">
+            Sistem Manajemen Database Workshop
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {menuItems.map((item) => (
+            <a key={item.href} href={item.href}>
+              <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 p-6 cursor-pointer border-2 border-[#D7CCC8]">
+                <div
+                  className={`${item.color} w-14 h-14 rounded-lg flex items-center justify-center mb-4`}
+                >
+                  <item.icon className="w-7 h-7 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-[#3E2723] mb-2">
+                  {item.title}
+                </h2>
+                <p className="text-[#6D4C41] mb-4">{item.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl font-bold text-[#8B4513]">
+                    {item.count}
+                  </span>
+                  <span className="text-sm text-[#A1887F]">Total</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <div className="mt-12 bg-white rounded-xl shadow-lg p-8 border-2 border-[#D7CCC8]">
+          <h2 className="text-2xl font-bold text-[#3E2723] mb-4">
+            Selamat Datang di Sistem Workshop Furniture
+          </h2>
+          <p className="text-[#6D4C41] leading-relaxed">
+            Aplikasi ini membantu Anda mengelola seluruh aspek workshop
+            furniture, mulai dari katalog produk, pesanan pelanggan, data
+            pelanggan, hingga inventori material. Pilih menu di atas untuk mulai
+            mengelola data.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+
